@@ -1,0 +1,260 @@
+\documentclass[10pt,a4paper,landscape]{extarticle}
+\usepackage[margin=10mm,top=13mm,bottom=12mm,headheight=12pt,headsep=3mm]{geometry}
+\usepackage{fontspec,xeCJK}
+\setmainfont{Times New Roman}
+\setCJKmainfont{Songti SC}
+\setCJKsansfont{Heiti SC}
+\usepackage{multicol,booktabs,tabularx,array,amsmath,xcolor,fancyhdr,tikz,enumitem,hyperref,graphicx}
+\usetikzlibrary{arrows.meta,positioning}
+\definecolor{accent}{HTML}{284B63}
+\definecolor{muted}{HTML}{555555}
+\definecolor{rulegray}{HTML}{B8B8B8}
+\hypersetup{colorlinks=true,urlcolor=accent,pdftitle={PerMemSafe 中文学术速查表},pdfauthor={阅读整理：Codex}}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\fontsize{7.8}{9}\selectfont Paper Cheatsheet}
+\fancyhead[C]{\fontsize{7.8}{9}\selectfont PerMemSafe：长时程记忆中的隐含个性化安全}
+\fancyhead[R]{\fontsize{7.8}{9}\selectfont\href{https://aclanthology.org/2026.findings-acl.320/}{ACL Anthology · ACL 2026 Findings}}
+\fancyfoot[L]{\scriptsize An et al. · Findings of ACL 2026 · pp. 6415--6433}
+\fancyfoot[C]{\scriptsize\thepage\ / 4}
+\fancyfoot[R]{\scriptsize 2026-10-23 · 讨论稿 v3}
+\renewcommand{\headrulewidth}{0.3pt}\renewcommand{\footrulewidth}{0.3pt}
+\setlength{\columnsep}{6mm}\setlength{\columnseprule}{0.2pt}
+\def\columnseprulecolor{\color{rulegray}}
+\setlength{\parindent}{0pt}\setlength{\parskip}{3pt}
+\linespread{1.08}\raggedbottom
+\newcommand{\sect}[1]{\par\vspace{6pt}{\color{accent}\bfseries\fontsize{10.5}{12}\selectfont #1}\par\vspace{1pt}{\color{rulegray}\hrule}\vspace{3pt}}
+\newcommand{\src}[1]{\par{\fontsize{7.3}{9}\selectfont\color{muted} #1\par}}
+\newcommand{\figcap}[1]{\par\vspace{2pt}{\fontsize{8.5}{10.5}\selectfont #1\par}}
+\newcommand{\ptitle}[2]{{\fontsize{17}{21}\selectfont\bfseries #1\par}\vspace{3pt}{\small #2\par}\vspace{5pt}}
+
+\definecolor{challenge}{HTML}{9C4848}
+\definecolor{insight}{HTML}{52715A}
+\newcommand{\panel}[3]{\begingroup\setlength{\fboxsep}{6pt}\setlength{\fboxrule}{.4pt}\fcolorbox{#1!65}{#1!4}{\begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}\textcolor{#1}{\bfseries #2}\par\vspace{3pt}#3\end{minipage}}\endgroup}
+\newcommand{\smallbody}{\fontsize{9.5}{11.5}\selectfont}
+\begin{document}
+\begingroup
+\setlength{\fboxsep}{7pt}\setlength{\fboxrule}{0.4pt}
+\noindent\fcolorbox{rulegray}{accent!3}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\begin{minipage}[t]{.55\linewidth}\vspace{0pt}\raggedright
+{\fontsize{15.5}{18}\selectfont\bfseries PerMemSafe / SentinelMem\par}
+\vspace{3pt}
+{\fontsize{10}{12}\selectfont\itshape PerMemSafe: Benchmarking Implicit Personalized Safety of Long-Horizon Self-Evolving Agents\par}
+\vspace{3pt}
+{\fontsize{8}{10}\selectfont
+Hengyu An$^{1,2*}$, Minxi Li$^{1*}$, Naen Xu$^1$, Chunyi Zhou$^1$,\\
+Xiaogang Xu$^1$, Tianyu Du$^{1,3\dagger}$, Jinbao Li$^4$, Shouling Ji$^1$\par
+$^1$浙江大学；$^2$清华大学互联网体系结构全国重点实验室；\\
+$^3$浙江大学宁波科创中心；$^4$齐鲁工业大学（山东省科学院）。\par
+$^*$共同一作；$^\dagger$通讯作者。机构与署名以论文首页为准。\par}
+\end{minipage}\hfill%
+\begin{minipage}[t]{.425\linewidth}\vspace{0pt}\raggedright
+{\fontsize{8.6}{11}\selectfont
+\textbf{研究主线}\quad 普通请求是否安全，取决于历史中隐含且会变化的用户状态。PerMemSafe 检验能否识别与更新风险；SentinelMem 将风险推断、画像与状态转移写入记忆。\par
+\vspace{4pt}
+\textbf{作者相关积累｜有 Agent 安全研究基础}\par
+\href{https://aclanthology.org/2025.emnlp-main.53/}{IPIGuard · EMNLP 2025}：提示注入防御；与本文重合 4 位作者。\par
+\href{https://aclanthology.org/2026.acl-long.457/}{ACIArena · ACL 2026 主会}：多智能体注入评测；重合 7 位作者。\par}
+{\fontsize{7.3}{9}\selectfont\color{muted}两项均由 Hengyu An 一作，含 Tianyu Du、Shouling Ji。作者积累依据相关论文的署名与主题；本稿的方法解读以指定 PDF 为准。}
+\end{minipage}
+\end{minipage}}
+\endgroup\vspace{7pt}\smallbody
+\par\noindent
+\begin{minipage}[t]{.60\textwidth}\vspace{0pt}
+\includegraphics[width=\linewidth]{images/fig1.png}
+\figcap{\textbf{图 1｜隐含个性化安全示例。}左：用户在先前交互中隐含地透露自杀风险。右：在后续对话中，用户询问如何减少卧室声音外传或阻止外部进入。安全回应应结合历史风险进行推理；不安全回应则提供有助于隔绝外界或设置物理障碍的具体建议。}
+\src{原文 Fig.1 · p.6416；图注译自原文。}
+
+\end{minipage}\hfill%
+\begin{minipage}[t]{.37\textwidth}\vspace{0pt}
+
+\panel{challenge}{Challenge｜记住事实，还不足以安全回应}{
+\textbf{1. 风险藏在线索中。}用户未必直接说出限制；表层摘要可能保留事实，却丢掉安全含义。\par
+\textbf{2. 线索未必被检索到。}历史风险与当前普通请求语义相距较远，关键背景可能进不了回答上下文。\par
+\textbf{3. 状态会变。}新对话可能显示风险缓解；覆盖旧事实又可能丢掉变化过程。}
+\vspace{6pt}\par
+\panel{insight}{核心洞察｜把风险状态作为记忆的一部分}{
+记忆要支持三件事：\textbf{推断隐含风险、持续维护安全画像、保留状态变化的依据}。回答依赖的是“用户现在处于什么状态”，而不只是“曾经说过什么”。}
+\src{阅读主线为整理者据 §1、§4.3、§5 归纳；各模块的证据与解释见第 2 页。}
+
+\end{minipage}
+\par
+\vspace{3pt}\sect{对应方案｜PerMemSafe 负责测，SentinelMem 负责改进}\par\noindent
+\begin{minipage}[t]{.319\textwidth}\vspace{0pt}
+
+\textbf{线索 → 风险：RIE}\par
+以推理抽取显式事实与隐含风险，把与安全有关的含义写进记忆。对应第一项挑战，也帮助连接查询与相关记忆。
+
+\end{minipage}\hfill%
+\begin{minipage}[t]{.319\textwidth}\vspace{0pt}
+
+\textbf{零散记忆 → 稳定画像：PUP}\par
+偏好与安全约束分别维护，让回应前已有用户背景；减少对某条记忆恰好被检索命中的依赖。
+
+\end{minipage}\hfill%
+\begin{minipage}[t]{.319\textwidth}\vspace{0pt}
+
+\textbf{旧事实 → 状态变化：FSMM}\par
+保留当前状态与紧邻前态，写出语义转移及回答指引，让系统理解“发生了什么变化”。
+
+\end{minipage}
+\par
+\vspace{6pt}
+\panel{accent}{先记住这两个层次}{\textbf{评测：}SP 看能否识别隐含风险；DE 看能否随风险缓解而调整回应。\quad\textbf{方法：}以上三个设计共同构成 SentinelMem。\par
+\textbf{代表结果：}GPT-4o-mini 的 Overall PSR 从 Mem0 的 39.20\% 提升至 48.53\%，即 +9.33 个百分点（相对 +23.80\%，作者报告；Table 2 / Fig.5）。}
+
+\newpage
+\smallbody
+\ptitle{方案如何落地：把风险推断、画像和状态变化接起来}{沿输入、操作与输出读机制；右侧解释设计理由，下方用组件消融检查支持程度。}
+\par\noindent
+\begin{minipage}[t]{.30\textwidth}\vspace{0pt}
+\includegraphics[width=\linewidth]{images/fig4.png}
+\figcap{\textbf{图 4｜SentinelMem 框架总览。}}
+\src{原文 Fig.4 · p.6421；图注译自原文。}
+\sect{这里的 memory 是什么？}
+由对话抽取的事实记忆、独立维护的偏好 / 安全画像，以及事实状态之间的变化关系。回答时组合检索记忆、画像和相关状态。
+\src{§2、§5。此处 self-evolving 主要指记忆持续更新。}
+
+\end{minipage}\hfill%
+\begin{minipage}[t]{.32\textwidth}\vspace{0pt}
+
+\sect{RIE｜为什么只提取事实不够？}
+\textbf{输入：}用户交互中的线索。\par
+\textbf{操作：}找显著信息，提炼显式 / 隐式事实，再推断对用户状态及未来风险的影响。\par
+\textbf{输出：}能支持风险推理的记忆内容，而非仅复述对话。
+\src{Reasoning-based Information Extraction；§5.1、附录 G.1。}
+\sect{PUP｜为什么还要单独维护画像？}
+单条事实检索难以覆盖完整背景。画像把\textbf{个人偏好与安全约束分开}，使用 ADD / UPDATE / NONE 操作更新；回答前就有可用的用户先验。
+\src{Proactive User Profiling；§5.1、附录 G.2。}
+
+\end{minipage}\hfill%
+\begin{minipage}[t]{.32\textwidth}\vspace{0pt}
+
+\sect{FSMM｜为什么不直接覆盖旧事实？}
+只保留新事实可能丢掉“如何变成现在”的信息。FSMM 重点保留\textbf{当前状态与紧邻前态}，由 LLM 表达两者的语义关系。
+\par\textbf{输入：}previous\_state + current\_state。\par
+\textbf{输出：}text（变化说明）+ response\_guidance（回应指引）。
+\src{Factual State Machine Memory；§5.1、附录 G.3。}
+\sect{一个贯穿的讲解例子}
+过去反复提到某种活动限制；后来明确表示已恢复。RIE 提炼限制，PUP 维护安全背景，FSMM 记录恢复及其依据；回答新的活动安排时据此调整。
+\src{整理者自拟例子，用于解释模块关系。}
+
+\end{minipage}
+\par
+\vspace{5pt}\par\noindent
+\begin{minipage}[t]{.38\textwidth}\vspace{0pt}
+\sect{组件消融：原文 Table 3}\includegraphics[width=\linewidth]{images/table3.png}
+\figcap{\textbf{表 3｜SentinelMem 消融结果（\%）。}用于评估各项核心设计的贡献。}\src{p.6422；完整项与 Fig.5 的 GPT-4o-mini 数值一致，表注未另写 backbone。}
+\end{minipage}\hfill%
+\begin{minipage}[t]{.59\textwidth}\vspace{0pt}
+
+\sect{这些结果支持哪部分设计？}
+\textbf{RIE：}Recall@3 从 81.63 升至 91.92；\textbf{PUP：}PSR 从 25.20 升至 43.60；\textbf{FSMM：}PHS 从 56.20 升至 61.60。这些是分别相对 Vanilla 的变化，不是依次叠加。完整方法的三个数值为 91.94 / 48.53 / 64.00。
+\par\textbf{整理者理解：}三项设计分别强调风险信息的表达、可用背景和状态转移，能够解释不同指标上的增益方向。但这组组合消融尚不能把每一种失败与一个模块严格一一归因。
+\par\textbf{待讨论：}推断出的风险若超出原始线索，会不会形成过度约束？画像中的推断与用户明确陈述应如何区分？这是后续阅读问题，本文表格没有直接回答。
+\src{§5.2、Table 3；最后两段为整理者分析与问题。}
+
+\end{minipage}
+\par
+
+\newpage
+\smallbody
+\ptitle{PerMemSafe 怎么测：识别隐含风险，再检验状态适配}{评测单位、任务条件与评分规则决定了结果含义；先读这页，再解释安全率。}
+\par\noindent
+\begin{minipage}[t]{.60\textwidth}\vspace{0pt}
+\includegraphics[width=\linewidth]{images/fig2.png}
+\figcap{\textbf{图 2｜数据构造流程。}先收集安全风险种子（1），再通过 LLM judge 与人工核验，对合成风险对话（2–3）和触发问题（5）进行拒绝采样。为增强真实感，向风险对话插入无关对话（4），在受控条件下构建覆盖多类风险的隐含个性化安全评测数据。}\src{原文 Fig.2 · p.6417；图注译自原文。}
+\end{minipage}\hfill%
+\begin{minipage}[t]{.37\textwidth}\vspace{0pt}
+
+\sect{两条赛道分别考什么？}
+\textbf{SP / Safety Perception：}历史中已有隐含风险，当前请求表面普通；回答需要利用历史识别风险。\par
+\textbf{DE / Dynamic Evolution：}后续对话改变风险状态；尤其检验风险缓解后，回答能否更新约束而非机械沿用旧判断。
+\sect{数据为何这样构造？}
+通过筛选，使风险来自历史背景，而非单看当前请求即可识别；加入大量无关对话，检验长历史下的记忆能力。
+\par 作者报告 \textbf{276 段对话、750 个测试实例}，覆盖身体、心理、关系、财务、职业五域；由合成管线构建并经人工核验。
+\src{§3、Limitations；对话数与测试实例数是不同口径。}
+
+\end{minipage}
+\par
+\vspace{5pt}\par\noindent
+\begin{minipage}[t]{.60\textwidth}\vspace{0pt}
+\sect{已有框架的基准表现｜原文 Table 2}\includegraphics[width=\linewidth]{images/table2.png}
+\figcap{\textbf{表 2｜不同 memory 框架在 PerMemSafe 上的表现（\%）。}底色越深表示表现越好；最佳结果以粗体标出。}\src{p.6420。按相同回答模型比较；SP、DE 与 Overall 不混用。SentinelMem 的完整方法结果见下一页。}
+\end{minipage}\hfill%
+\begin{minipage}[t]{.37\textwidth}\vspace{0pt}
+
+\sect{三个指标：检索、安全、帮助}
+\textbf{Recall@3：}top-3 检索记忆覆盖相关安全记忆的比例。\par
+\textbf{PSR：}GPT-4o judge 判定回答满足该赛道个性化安全规则的比例。\par
+\textbf{PHS：}贴合当前用户状态且有帮助的程度；1--5 分映射为百分制。三者均越高越好。
+\src{§3.3，Eq.(5)--(7)。}
+\sect{PSR 高，具体意味着什么？}
+Judge 获得目标风险等评判信息，并同时查看 Reason 与 Answer。DE 还要求提到旧风险及其缓解依据。
+\par\textbf{整理者解读：}PSR 更接近风险意识 / 状态适配规则的通过率。一个合理却未复述历史的答案也可能判负，因此不能直接读成真实行动的无伤害率。
+\src{附录 E.2；此处解释评分规则的含义。}
+
+\end{minipage}
+\par
+
+\newpage
+\smallbody
+\ptitle{结果怎么读：提升在哪里，哪些判断还要保留？}{以作者报告值为依据；先比较同一模型，再区分总体增益、模块解释与真实场景外推。}
+\par\noindent
+\begin{minipage}[t]{.79\textwidth}\vspace{0pt}
+\includegraphics[width=\linewidth]{images/fig5.png}
+\figcap{\textbf{图 5｜总体表现对比（\%）。}比较 SentinelMem 与其他自演化 memory 框架的表现。}\src{原文 Fig.5 · p.6422；两个回答模型分别比较，三个指标分别解释。}
+\end{minipage}\hfill%
+\begin{minipage}[t]{.18\textwidth}\vspace{0pt}
+
+\sect{先看 PSR 与 PHS}
+SentinelMem 在图中两个模型上提高 PSR 和 PHS。\par
+\textbf{再看反例：}Gemini 的 Recall@3 并非最高；记忆检索覆盖与最终安全回应不能互相替代。
+\src{Fig.5 / Table 2。}
+
+\end{minipage}
+\par
+\vspace{5pt}\par\noindent
+\begin{minipage}[t]{.319\textwidth}\vspace{0pt}
+
+\sect{“提升 23.8\%”到底怎么算？}
+GPT-4o-mini：Mem0 的 PSR 为 39.20\%，SentinelMem 为 48.53\%。\par
+\textbf{绝对变化：}+9.33 个百分点。\par
+\textbf{相对变化：}$9.33 / 39.20 \approx 23.80\%$。
+\par Gemini：51.74\% $\rightarrow$ 60.53\%，即 +8.79 个百分点。其 Recall@3 为 80.29，低于 MemoryOS 的 88.91；正文“所有指标优于所有基线”的概括超出了这组数值。
+\src{按 Fig.5 / Table 2 核对与重算。}
+\sect{“最强仅约 50\%”有条件}
+这是主表轻量模型设置的概括。附录 C 中 GPT-5.1 + Mem0 的 Overall PSR 为 72.93\%（DE 为 65.33\%）。记忆设计与模型能力都会影响结果。
+\src{Table 2、附录 C / Table 4。}
+
+\end{minipage}\hfill%
+\begin{minipage}[t]{.319\textwidth}\vspace{0pt}
+
+\sect{哪些证据可以支持结论？}
+主表是 3 个轻量模型 $\times$ 5 个已有框架；完整 SentinelMem 图示 GPT-4o-mini 与 Gemini。设置为 top-k=3、温度 0、最长输出 2048；作者称三次运行取均值。
+\par 综合主结果与消融，本文支持：\textbf{主动建模风险及状态变化的记忆设计，在该基准上更有效。}
+\src{§4--5、附录 E.1；概括为整理者归纳。}
+\sect{外推前要检查什么？}
+数据是合成的纯文本五域对话；本文未报告长期真实用户部署，也未测试越狱、记忆投毒或工具执行攻击。
+\par 100 例 judge / 人工一致性检验支持评分可用性，但不等同于验证全部标签、风险解除条件或真实伤害下降。
+\src{Limitations、附录 E.3；基准结果与现实风险需分开理解。}
+
+\end{minipage}\hfill%
+\begin{minipage}[t]{.319\textwidth}\vspace{0pt}
+
+\sect{后续讨论｜整理者提出的问题}
+\textbf{什么证据足以推断风险？}缺少明确陈述时，什么证据足以写入安全画像？\par
+\textbf{何时可以解除约束？}新线索是短暂缓解还是稳定变化，系统如何表达不确定性？\par
+\textbf{我们真正关心哪个结果？}评分要求的风险复述，是否与合适、不过度限制的回应一致？
+\src{整理者提出的讨论入口，留待结合具体样本继续分析。}
+\sect{回读导航}
+问题与动机：§1 / Fig.1。\par
+构造与评分：§3 / Fig.2、附录 E.2。\par
+方法与提示：§5 / Fig.4、附录 G。\par
+结果：Table 2、Fig.5、Table 3；强模型见附录 C / Table 4。
+\par\href{https://aclanthology.org/2026.findings-acl.320/}{论文页面} · \href{https://aclanthology.org/2026.findings-acl.320.pdf}{原文 PDF}
+\src{本稿为 PDF 阅读与讨论稿；全部图表直接裁切原文。未开展新增实验或代码复现。作者资料沿用本轮已核实来源。}
+
+\end{minipage}
+\par
+
+\end{document}
