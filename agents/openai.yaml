@@ -1,0 +1,4 @@
+interface:
+  display_name: "文章速查表"
+  short_description: "将论文与技术文章整理成中文速览、方法对比与可打印速查表，保留原文依据"
+  default_prompt: "使用 $article-cheatsheet 阅读这篇文章，生成中文速览和便于回查的 PDF 速查表。"
